@@ -1,2 +1,2 @@
 # javaFX
-Playground for developing desktop guis
+My personal playground to develop my skills in javafx.
