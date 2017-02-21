@@ -114,18 +114,16 @@ public class GeometryFX extends Application {
     }
 
     private void resolveCircles() {
-        List<Node> circles = new ArrayList<>();
-        circles.addAll(gr.getChildren());
-        if (circles.size() > 0) {
+        if (gr.getChildren().size() > 0) {
             boolean overlapping = true;
             int limit = 100000;
             while (overlapping && limit-- > 0) {
                 overlapping = false;
-                for (int i = 0; i < circles.size(); i++) {
-                    Node node = circles.get(i);
+                for (int i = 0; i < gr.getChildren().size(); i++) {
+                    Node node = gr.getChildren().get(i);
                     if (node instanceof Circle) {
-                        for (int k = 0; k < circles.size(); k++) {
-                            Node node2 = circles.get(k);
+                        for (int k = 0; k < gr.getChildren().size(); k++) {
+                            Node node2 = gr.getChildren().get(k);
                             if (node2 instanceof Circle) {
                                 if (node != node2) {
                                     Double dx = ((Circle) node).getCenterX() - ((Circle) node2).getCenterX();
