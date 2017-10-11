@@ -1,145 +1,64 @@
-package Visibility;/**
- * Created by akram on 15.02.17.
- */
-
+package Visibility;
 import javafx.application.Application;
-import javafx.beans.binding.DoubleBinding;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.util.Random;
 
 public class ScrollPaneEnsureVisible extends Application {
 
-//    public static void main(String[] args) {
-//        launch(args);
-//    }
-//
-//    @Override
-//    public void start(Stage primaryStage) throws Exception {
-//
-//        StackPane root = new StackPane();
-//        root.setAlignment(Pos.TOP_LEFT);
-//
-//        ScrollPane scrollPane = new ScrollPane();
-//        Pane pane = new Pane();
-//        pane.setMinHeight(1000);
-//        pane.setMinWidth(1000);
-//        scrollPane.setContent(pane);
-//
-//        root.getChildren().add(scrollPane);
-//        Label fixed = new Label("Fixed");
-//        root.getChildren().add(fixed);
-//
-//        // Allow vertical scrolling of fixed element:
-//        scrollPane.hvalueProperty().addListener( (observable, oldValue, newValue) -> {
-//            double xTranslate = newValue.doubleValue() * (scrollPane.getViewportBounds().getWidth() - fixed.getWidth());
-//            fixed.translateXProperty().setValue(-xTranslate);
-//        });
-//        // Allow horizontal scrolling of fixed element:
-//        scrollPane.vvalueProperty().addListener( (observable, oldValue, newValue) -> {
-//            double yTranslate = newValue.doubleValue() * (scrollPane.getViewportBounds().getHeight() - fixed.getWidth());
-//            fixed.translateYProperty().setValue(-yTranslate);
-//        });
-//
-//        Scene scene = new Scene(root, 500, 500);
-//
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
-//    }
+    private static final Random random = new Random();
+
+    private static void ensureVisible(ScrollPane pane, Node node) {
+        double width = pane.getContent().getBoundsInLocal().getWidth();
+        double height = pane.getContent().getBoundsInLocal().getHeight();
+
+        double x = node.getBoundsInParent().getMaxX();
+        double y = node.getBoundsInParent().getMaxY();
+
+        // scrolling values range from 0 to 1
+        pane.setVvalue(y / height);
+        pane.setHvalue(x / width);
+
+        // just for usability
+        node.requestFocus();
+    }
 
     @Override
     public void start(Stage primaryStage) {
-        ScrollPane scrollPane = new ScrollPane();
-        Pane content = new Pane();
-        scrollPane.setContent(content);
 
-        // adding background
-        content.getChildren().add(new Rectangle(500, 500, Color.LIGHTGRAY));
+        final ScrollPane root = new ScrollPane();
+        final Pane content = new Pane();
+        root.setContent(content);
 
-        Label label = new Label("Hallo!!");
-        label.setLayoutX(200);
-        label.setLayoutY(200);
-        label.setTextFill(Color.RED);
-        label.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        // put 10 buttons at random places with same handler
+        final EventHandler<ActionEvent> handler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                int index = random.nextInt(10);
+                System.out.println("Moving to button " + index);
+                ensureVisible(root, content.getChildren().get(index));
+            }
+        };
 
-        Circle immovableObject = new Circle(30, Color.RED);
-        content.getChildren().add(label);
+        for (int i = 0; i < 10; i++) {
+            Button btn = new Button("next " + i);
+            btn.setOnAction(handler);
+            content.getChildren().add(btn);
+            btn.relocate(2000 * random.nextDouble(), 2000 * random.nextDouble());
+        }
 
-        primaryStage.setScene(new Scene(scrollPane, 300, 300));
+        Scene scene = new Scene(root, 300, 250);
+        primaryStage.setScene(scene);
         primaryStage.show();
 
-        // here we bind circle Y position
-        label.layoutYProperty().bind(
-                // to vertical scroll shift (which ranges from 0 to 1)
-                scrollPane.vvalueProperty()
-                        // multiplied by (scrollableAreaHeight - visibleViewportHeight)
-                        .multiply(
-                                content.heightProperty()
-                                        .subtract(label.getLayoutY())));
-
-        label.layoutXProperty().bind(
-                scrollPane.hvalueProperty().multiply(content.widthProperty().subtract(new ScrollPaneViewPortHeightBinding(scrollPane)))
-        );
+        // run once to don't search for a first button manually
+        handler.handle(null);
     }
-
-    // we need this class because Bounds object doesn't support binding
-    private static class ScrollPaneViewPortHeightBinding extends DoubleBinding {
-
-        private final ScrollPane root;
-
-        public ScrollPaneViewPortHeightBinding(ScrollPane root) {
-            this.root = root;
-            super.bind(root.viewportBoundsProperty());
-        }
-
-        @Override
-        protected double computeValue() {
-            return root.getViewportBounds().getHeight();
-        }
-    }
-
-    public static void main(String[] args) { launch(); }
-
-//    public static void main(String[] args) {
-//        launch(args);
-//    }
-//
-//    @Override
-//    public void start(Stage primaryStage) throws Exception {
-//
-//        StackPane root = new StackPane();
-//        root.setAlignment(Pos.TOP_LEFT);
-//
-//        ScrollPane scrollPane = new ScrollPane();
-//        Pane pane = new Pane();
-//        pane.setMinHeight(1000);
-//        pane.setMinWidth(1000);
-//        scrollPane.setContent(pane);
-//
-//        root.getChildren().add(scrollPane);
-//        Label fixed = new Label("Fixed");
-//        root.getChildren().add(fixed);
-//
-////        // Allow vertical scrolling of fixed element:
-////        scrollPane.hvalueProperty().addListener((observable, oldValue, newValue) -> {
-////            double xTranslate = newValue.doubleValue() * (scrollPane.getViewportBounds().getWidth() - fixed.getWidth());
-////            fixed.translateXProperty().setValue(-xTranslate);
-////        });
-////        // Allow horizontal scrolling of fixed element:
-////        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
-////            double yTranslate = newValue.doubleValue() * (scrollPane.getViewportBounds().getHeight() - fixed.getWidth());
-////            fixed.translateYProperty().setValue(-yTranslate);
-////        });
-//
-//        Scene scene = new Scene(root, 500, 500);
-//
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
-//    }
 }
