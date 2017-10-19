@@ -50,7 +50,7 @@ public class ListViewSample extends Application{
 
         observableKeyToValueMap.addListener((MapChangeListener<? super String, ? super String>) e->{
             System.out.println("{key= " +e.getKey() + ", value= "+ e.getValueAdded()+", size= " +e.getMap().size()+"}");
-//            stringListView.getItems().removeAll(e.getKey());
+            stringListView.getItems().removeAll(e.getKey());
             if(e.wasAdded()){
                 stringListView.getItems().add(e.getKey());
             }
